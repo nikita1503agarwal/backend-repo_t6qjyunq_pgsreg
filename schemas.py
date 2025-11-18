@@ -12,7 +12,8 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Literal
+from datetime import datetime
 
 # Example schemas (replace with your own):
 
@@ -38,8 +39,27 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Task management schemas
+
+class Task(BaseModel):
+    """
+    Tasks collection schema
+    Collection name: "task"
+    """
+    title: str = Field(..., description="Task title")
+    description: Optional[str] = Field(None, description="Details about the task")
+    priority: int = Field(3, ge=1, le=5, description="Priority from 1 (lowest) to 5 (highest)")
+    estimated_duration_minutes: int = Field(30, ge=5, le=8*60, description="Estimated time needed in minutes")
+    due_at: Optional[datetime] = Field(None, description="Due date/time (ISO8601)")
+    status: Literal["todo", "in_progress", "done"] = Field("todo")
+    tags: List[str] = Field(default_factory=list)
+
+class ScheduleBlock(BaseModel):
+    title: str
+    task_id: Optional[str] = None
+    start: datetime
+    end: datetime
+    description: Optional[str] = None
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
